@@ -2,7 +2,6 @@ package com.wan26.scheduler;
 
 import com.wan26.model.JobStatus;
 import com.wan26.model.VideoJob;
-import com.wan26.model.VideoMode;
 import com.wan26.repository.VideoJobRepository;
 import com.wan26.service.FalAiService;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class JobPollingScheduler {
-
-    private static final String T2V_ENDPOINT = "wan/v2.6/text-to-video";
-    private static final String I2V_ENDPOINT = "wan/v2.6/image-to-video";
 
     private final VideoJobRepository repository;
     private final FalAiService falAiService;
@@ -40,9 +36,18 @@ public class JobPollingScheduler {
             if (job.getFalRequestId() == null) {
                 continue;
             }
+            // Double-check: skip if job was cancelled between query and iteration
+            if (job.getStatus() == JobStatus.CANCELLED) {
+                continue;
+            }
+            // Must have stored URLs — if not, skip (old data without URLs)
+            if (job.getFalStatusUrl() == null) {
+                log.warn("Job {} has no falStatusUrl stored, cannot poll", job.getId());
+                continue;
+            }
             try {
-                String endpoint = job.getMode() == VideoMode.TEXT_TO_VIDEO ? T2V_ENDPOINT : I2V_ENDPOINT;
-                FalAiService.FalStatusResponse statusResponse = falAiService.pollStatus(endpoint, job.getFalRequestId());
+                FalAiService.FalStatusResponse statusResponse =
+                        falAiService.pollStatus(job.getFalStatusUrl());
 
                 if (statusResponse == null) {
                     continue;
@@ -52,10 +57,14 @@ public class JobPollingScheduler {
                 log.debug("Job {} fal.ai status: {}", job.getId(), falStatus);
 
                 switch (falStatus) {
-                    case "IN_QUEUE" -> job.setStatus(JobStatus.IN_QUEUE);
+                    case "IN_QUEUE"    -> job.setStatus(JobStatus.IN_QUEUE);
                     case "IN_PROGRESS" -> job.setStatus(JobStatus.IN_PROGRESS);
-                    case "COMPLETED" -> {
-                        FalAiService.FalResultResponse result = falAiService.fetchResult(endpoint, job.getFalRequestId());
+                    case "COMPLETED"   -> {
+                        String responseUrl = job.getFalResponseUrl() != null
+                                ? job.getFalResponseUrl()
+                                : statusResponse.getResponseUrl();
+                        FalAiService.FalResultResponse result =
+                                falAiService.fetchResult(responseUrl);
                         if (result != null && result.getVideo() != null) {
                             FalAiService.VideoFileResponse video = result.getVideo();
                             job.setStatus(JobStatus.COMPLETED);

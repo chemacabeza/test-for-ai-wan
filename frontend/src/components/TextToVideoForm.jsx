@@ -74,9 +74,9 @@ export default function TextToVideoForm({ onJobCreated }) {
           onChange={(e) => set('prompt', e.target.value)}
           placeholder="Describe the video you want to generate..."
           required
-          maxLength={800}
+          maxLength={3000}
         />
-        <div className="form-hint">{form.prompt.length}/800 characters.
+        <div className="form-hint">{form.prompt.length}/3000 characters.
           Try: <button
             type="button"
             style={{ background:'none', border:'none', color:'var(--accent-1)', cursor:'pointer', padding:0, fontSize:'0.8rem' }}

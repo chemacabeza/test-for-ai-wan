@@ -51,34 +51,32 @@ public class FalAiService {
     }
 
     // -------------------------------------------------------------------------
-    // Poll Job Status
+    // Poll Job Status — uses the exact status_url returned at submission time
     // -------------------------------------------------------------------------
-    public FalStatusResponse pollStatus(String endpoint, String requestId) {
-        String statusPath = "/" + endpoint + "/requests/" + requestId + "/status?logs=1";
-        log.debug("Polling fal.ai status for requestId={}", requestId);
+    public FalStatusResponse pollStatus(String statusUrl) {
+        log.debug("Polling fal.ai status at {}", statusUrl);
         return falWebClient.get()
-                .uri(statusPath)
+                .uri(java.net.URI.create(statusUrl + "?logs=1"))
                 .retrieve()
                 .bodyToMono(FalStatusResponse.class)
                 .onErrorResume(e -> {
-                    log.error("Error polling status for {}: {}", requestId, e.getMessage());
+                    log.error("Error polling status at {}: {}", statusUrl, e.getMessage());
                     return Mono.empty();
                 })
                 .block();
     }
 
     // -------------------------------------------------------------------------
-    // Fetch Result
+    // Fetch Result — uses the exact response_url returned at submission time
     // -------------------------------------------------------------------------
-    public FalResultResponse fetchResult(String endpoint, String requestId) {
-        String resultPath = "/" + endpoint + "/requests/" + requestId;
-        log.info("Fetching result for requestId={}", requestId);
+    public FalResultResponse fetchResult(String responseUrl) {
+        log.info("Fetching result at {}", responseUrl);
         return falWebClient.get()
-                .uri(resultPath)
+                .uri(java.net.URI.create(responseUrl))
                 .retrieve()
                 .bodyToMono(FalResultResponse.class)
                 .onErrorResume(e -> {
-                    log.error("Error fetching result for {}: {}", requestId, e.getMessage());
+                    log.error("Error fetching result at {}: {}", responseUrl, e.getMessage());
                     return Mono.empty();
                 })
                 .block();

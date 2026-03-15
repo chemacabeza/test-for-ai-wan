@@ -95,6 +95,10 @@ cmd_start() {
     check_dependencies
     check_env_file
 
+    info "Stopping any existing containers (cleanup)..."
+    docker compose down --remove-orphans 2>/dev/null || true
+    echo ""
+
     info "Building Docker images (this may take a few minutes on first run)..."
     docker compose build
 
@@ -118,11 +122,16 @@ cmd_start() {
         warn "Check the logs with: docker compose logs"
     fi
 
+
+    info "Showing live logs (Ctrl+C to detach — containers keep running)..."
+    # Trap Ctrl+C so it only exits the log-follow, not the containers.
+    trap '' INT
+    docker compose logs -f || true
+    trap - INT
+    echo ""
+    success "Detached from logs. Containers are still running."
     echo -e "  Run ${YELLOW}./run.sh stop${RESET} to shut everything down."
     echo ""
-
-    info "Showing live logs (Ctrl+C to detach, containers keep running)..."
-    docker compose logs -f
 }
 
 cmd_stop() {

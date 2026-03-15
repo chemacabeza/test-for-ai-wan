@@ -11,7 +11,7 @@ import lombok.Data;
 public class TextToVideoRequest {
 
     @NotBlank(message = "Prompt is required")
-    @Size(max = 800, message = "Prompt must be at most 800 characters")
+    @Size(max = 3000, message = "Prompt must be at most 3000 characters")
     private String prompt;
 
     @Size(max = 500, message = "Negative prompt must be at most 500 characters")

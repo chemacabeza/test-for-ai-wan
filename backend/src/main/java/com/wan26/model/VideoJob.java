@@ -59,6 +59,12 @@ public class VideoJob {
     @Column(name = "fal_request_id")
     private String falRequestId;
 
+    @Column(name = "fal_status_url", columnDefinition = "TEXT")
+    private String falStatusUrl;
+
+    @Column(name = "fal_response_url", columnDefinition = "TEXT")
+    private String falResponseUrl;
+
     @Column(name = "video_url", columnDefinition = "TEXT")
     private String videoUrl;
 

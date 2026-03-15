@@ -22,6 +22,12 @@ export const getAllJobs = () =>
 export const getJobById = (id) =>
   api.get(`/videos/${id}`).then((r) => r.data);
 
+export const cancelJob = (id) =>
+  api.delete(`/videos/${id}/cancel`).then((r) => r.data);
+
+export const deleteJob = (id) =>
+  api.delete(`/videos/${id}`);
+
 // ── fal.ai File Upload (direct, using fal.ai's REST file API) ─────────────────
 // For I2V we need a publicly accessible image URL.
 // We upload directly to fal.ai's CDN from the frontend using a proxy approach.

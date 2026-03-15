@@ -128,8 +128,8 @@ export default function ImageToVideoForm({ onJobCreated }) {
         <textarea id="i2v-prompt" value={form.prompt}
           onChange={(e) => set('prompt', e.target.value)}
           placeholder="Describe how you want the image to animate... (e.g., 'gentle breeze, leaves swaying, camera slowly zooming out')"
-          required maxLength={800} />
-        <div className="form-hint">{form.prompt.length}/800 characters</div>
+          required maxLength={3000} />
+        <div className="form-hint">{form.prompt.length}/3000 characters</div>
       </div>
 
       {/* Negative Prompt */}

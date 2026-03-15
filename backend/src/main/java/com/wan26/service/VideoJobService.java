@@ -58,6 +58,8 @@ public class VideoJobService {
                 .seed(req.getSeed())
                 .status(queueResponse != null ? JobStatus.IN_QUEUE : JobStatus.FAILED)
                 .falRequestId(queueResponse != null ? queueResponse.getRequestId() : null)
+                .falStatusUrl(queueResponse != null ? queueResponse.getStatusUrl() : null)
+                .falResponseUrl(queueResponse != null ? queueResponse.getResponseUrl() : null)
                 .errorMessage(queueResponse == null ? "Failed to submit job to fal.ai" : null)
                 .build();
 
@@ -96,6 +98,8 @@ public class VideoJobService {
                 .seed(req.getSeed())
                 .status(queueResponse != null ? JobStatus.IN_QUEUE : JobStatus.FAILED)
                 .falRequestId(queueResponse != null ? queueResponse.getRequestId() : null)
+                .falStatusUrl(queueResponse != null ? queueResponse.getStatusUrl() : null)
+                .falResponseUrl(queueResponse != null ? queueResponse.getResponseUrl() : null)
                 .errorMessage(queueResponse == null ? "Failed to submit job to fal.ai" : null)
                 .build();
 
@@ -120,5 +124,42 @@ public class VideoJobService {
         return repository.findById(id)
                 .map(VideoJobResponse::from)
                 .orElseThrow(() -> new IllegalArgumentException("Job not found: " + id));
+    }
+
+    // -------------------------------------------------------------------------
+    // Cancel Job
+    // -------------------------------------------------------------------------
+    @Transactional
+    public VideoJobResponse cancelJob(UUID id) {
+        VideoJob job = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Job not found: " + id));
+
+        if (!List.of(JobStatus.PENDING, JobStatus.IN_QUEUE, JobStatus.IN_PROGRESS).contains(job.getStatus())) {
+            throw new IllegalStateException(
+                "Cannot cancel job in status: " + job.getStatus() + ". Only active jobs can be cancelled.");
+        }
+
+        job.setStatus(JobStatus.CANCELLED);
+        job.setErrorMessage("Cancelled by user");
+        job = repository.save(job);
+        log.info("Job {} cancelled by user", job.getId());
+        return VideoJobResponse.from(job);
+    }
+
+    // -------------------------------------------------------------------------
+    // Delete Job (terminal jobs only)
+    // -------------------------------------------------------------------------
+    @Transactional
+    public void deleteJob(UUID id) {
+        VideoJob job = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Job not found: " + id));
+
+        if (!List.of(JobStatus.FAILED, JobStatus.CANCELLED).contains(job.getStatus())) {
+            throw new IllegalStateException(
+                "Cannot delete job in status: " + job.getStatus() + ". Only FAILED or CANCELLED jobs can be deleted.");
+        }
+
+        repository.delete(job);
+        log.info("Deleted job {}", id);
     }
 }

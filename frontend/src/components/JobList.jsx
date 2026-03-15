@@ -3,13 +3,14 @@ import JobCard from './JobCard';
 import { useJobs } from '../hooks/useJobs';
 
 export default function JobList({ pendingJobs }) {
-  const { jobs, loading, error, refetch } = useJobs();
+  const { jobs, loading, error, refetch, cancelJob, deleteJob } = useJobs();
 
-  // Merge optimistically-added pending jobs (from form submission) with server list
+  // Merge optimistically-added pending jobs (from form submission) with server list.
+  // Exclude CANCELLED jobs so they disappear from the gallery immediately.
   const allJobs = React.useMemo(() => {
     const serverIds = new Set(jobs.map((j) => j.id));
     const optimistic = pendingJobs.filter((j) => !serverIds.has(j.id));
-    return [...optimistic, ...jobs];
+    return [...optimistic, ...jobs].filter((j) => j.status !== 'CANCELLED');
   }, [jobs, pendingJobs]);
 
   const activeCount = allJobs.filter((j) =>
@@ -72,7 +73,7 @@ export default function JobList({ pendingJobs }) {
       ) : (
         <div className="job-grid">
           {allJobs.map((job) => (
-            <JobCard key={job.id} job={job} />
+            <JobCard key={job.id} job={job} onCancel={cancelJob} onDelete={deleteJob} />
           ))}
         </div>
       )}

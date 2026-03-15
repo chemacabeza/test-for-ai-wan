@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getAllJobs } from '../services/api';
+import { getAllJobs, cancelJob as cancelJobApi, deleteJob as deleteJobApi } from '../services/api';
 
 /**
  * Hook that fetches all jobs and automatically polls for updates
@@ -37,5 +37,28 @@ export function useJobs() {
     return () => clearInterval(interval);
   }, [jobs, fetchJobs]);
 
-  return { jobs, loading, error, refetch: fetchJobs };
+  // Cancel a job: optimistic update then refetch
+  const cancelJob = useCallback(async (jobId) => {
+    // Optimistic: immediately show CANCELLED in the UI
+    setJobs((prev) =>
+      prev.map((j) =>
+        j.id === jobId
+          ? { ...j, status: 'CANCELLED', errorMessage: 'Cancelled by user' }
+          : j
+      )
+    );
+    await cancelJobApi(jobId);
+    // Sync with server state
+    await fetchJobs();
+  }, [fetchJobs]);
+
+  // Delete a job (FAILED/CANCELLED only): optimistic removal then refetch
+  const deleteJob = useCallback(async (jobId) => {
+    setJobs((prev) => prev.filter((j) => j.id !== jobId));
+    await deleteJobApi(jobId);
+    await fetchJobs();
+  }, [fetchJobs]);
+
+  return { jobs, loading, error, refetch: fetchJobs, cancelJob, deleteJob };
 }
+
