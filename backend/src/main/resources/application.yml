@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: wan26-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/wan_videos
+    username: wan_user
+    password: secret
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+fal:
+  api:
+    key: ${FAL_API_KEY:}
+    base-url: https://queue.fal.run
+
+logging:
+  level:
+    com.wan26: DEBUG
+    org.springframework.web: INFO
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
