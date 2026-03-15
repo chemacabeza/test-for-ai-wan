@@ -174,7 +174,7 @@ export default function JobCard({ job, onCancel, onDelete }) {
         {job.status === 'COMPLETED' && job.videoUrl && (
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <a
-              href={`/api/videos/${job.id}/download`}
+              href={`/api/videos/download/${job.id}`}
               download
               title="Download video"
               style={{

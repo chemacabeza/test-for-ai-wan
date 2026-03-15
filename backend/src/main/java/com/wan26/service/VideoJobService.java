@@ -113,7 +113,7 @@ public class VideoJobService {
     // -------------------------------------------------------------------------
     @Transactional(readOnly = true)
     public List<VideoJobResponse> getAllJobs() {
-        return repository.findAllByOrderByCreatedAtDesc()
+        return repository.findAllByOrderByCreatedAtAsc()
                 .stream()
                 .map(VideoJobResponse::from)
                 .toList();

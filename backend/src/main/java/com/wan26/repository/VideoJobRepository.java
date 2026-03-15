@@ -13,5 +13,5 @@ public interface VideoJobRepository extends JpaRepository<VideoJob, UUID> {
 
     List<VideoJob> findByStatusInOrderByCreatedAtDesc(List<JobStatus> statuses);
 
-    List<VideoJob> findAllByOrderByCreatedAtDesc();
+    List<VideoJob> findAllByOrderByCreatedAtAsc();
 }

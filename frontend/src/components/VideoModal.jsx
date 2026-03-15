@@ -66,7 +66,7 @@ export default function VideoModal({ job, onClose }) {
           <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
             {/* Download */}
             <a
-              href={`/api/videos/${job.id}/download`}
+              href={`/api/videos/download/${job.id}`}
               download
               title="Download video"
               style={{

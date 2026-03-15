@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -25,7 +25,6 @@ import java.util.UUID;
 public class VideoController {
 
     private final VideoJobService videoJobService;
-    private final WebClient.Builder webClientBuilder;
 
     @PostMapping("/text-to-video")
     public ResponseEntity<VideoJobResponse> createTextToVideo(@Valid @RequestBody TextToVideoRequest request) {
@@ -55,13 +54,14 @@ public class VideoController {
      * Proxies the completed video from fal.ai CDN and forces a download with a unique,
      * descriptive filename — bypassing the browser's cross-origin download restriction.
      *
+     * Uses streaming (HttpURLConnection) to avoid buffering the full video in memory.
      * Filename format: wan_YYYY-MM-DD_HH-mm_1080p_16-9_15s.mp4
      */
-    @GetMapping("/{id}/download")
-    public ResponseEntity<byte[]> downloadVideo(@PathVariable UUID id) {
+    @GetMapping("/download/{id}")
+    public ResponseEntity<StreamingResponseBody> downloadVideo(@PathVariable UUID id) {
         VideoJobResponse job = videoJobService.getJobById(id);
 
-        if (job.getVideoUrl() == null || !"COMPLETED".equals(job.getStatus())) {
+        if (job.getVideoUrl() == null || job.getStatus() != com.wan26.model.JobStatus.COMPLETED) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
@@ -78,18 +78,24 @@ public class VideoController {
             aspectSafe,
             job.getDuration() != null ? job.getDuration() : 0);
 
-        log.info("Proxying download for job {} -> {}", id, filename);
+        log.info("Streaming download for job {} -> {}", id, filename);
 
-        byte[] videoBytes = webClientBuilder.build()
-            .get()
-            .uri(job.getVideoUrl())
-            .retrieve()
-            .bodyToMono(byte[].class)
-            .block();
-
-        if (videoBytes == null) {
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
-        }
+        String videoUrl = job.getVideoUrl();
+        StreamingResponseBody stream = outputStream -> {
+            java.net.URL url = new java.net.URL(videoUrl);
+            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(10_000);
+            conn.setReadTimeout(120_000);
+            try (java.io.InputStream in = conn.getInputStream()) {
+                byte[] buf = new byte[64 * 1024]; // 64KB chunks
+                int read;
+                while ((read = in.read(buf)) != -1) {
+                    outputStream.write(buf, 0, read);
+                }
+            } finally {
+                conn.disconnect();
+            }
+        };
 
         String contentType = job.getVideoContentType() != null
             ? job.getVideoContentType()
@@ -98,7 +104,7 @@ public class VideoController {
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
             .contentType(MediaType.parseMediaType(contentType))
-            .body(videoBytes);
+            .body(stream);
     }
 
     @DeleteMapping("/{id}/cancel")

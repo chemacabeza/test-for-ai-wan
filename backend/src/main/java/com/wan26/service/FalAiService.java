@@ -74,11 +74,19 @@ public class FalAiService {
         return falWebClient.get()
                 .uri(java.net.URI.create(responseUrl))
                 .retrieve()
+                .onStatus(status -> !status.is2xxSuccessful(), clientResponse ->
+                    clientResponse.bodyToMono(String.class).flatMap(body -> {
+                        String msg;
+                        if (clientResponse.statusCode().value() == 422 && body.contains("content_policy_violation")) {
+                            msg = "Content policy violation — fal.ai rejected this prompt";
+                        } else {
+                            msg = "fal.ai result fetch failed: HTTP " + clientResponse.statusCode().value() + " — " + body;
+                        }
+                        log.error("Error fetching result at {}: {}", responseUrl, msg);
+                        return Mono.error(new RuntimeException(msg));
+                    })
+                )
                 .bodyToMono(FalResultResponse.class)
-                .onErrorResume(e -> {
-                    log.error("Error fetching result at {}: {}", responseUrl, e.getMessage());
-                    return Mono.empty();
-                })
                 .block();
     }
 

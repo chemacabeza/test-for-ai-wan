@@ -94,6 +94,14 @@ public class JobPollingScheduler {
                 repository.save(job);
             } catch (Exception e) {
                 log.error("Error polling job {}: {}", job.getId(), e.getMessage(), e);
+                // Mark as FAILED so it surfaces in the UI and doesn't stay stuck forever
+                try {
+                    job.setStatus(JobStatus.FAILED);
+                    job.setErrorMessage("Polling error: " + e.getMessage());
+                    repository.save(job);
+                } catch (Exception saveEx) {
+                    log.error("Failed to mark job {} as FAILED after polling error: {}", job.getId(), saveEx.getMessage());
+                }
             }
         }
     }
