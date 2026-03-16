@@ -1,7 +1,7 @@
-# 🎬 Wan 2.6 Studio
+# 🎬 AI Video Studio
 
-AI video generator powered by [Wan 2.6](https://fal.ai/models/fal-ai/wan/v2.6/text-to-video) via fal.ai.
-Generate cinematic videos from text prompts or images, track generation progress in real-time, and play back results directly in the browser.
+Full-stack AI video generation platform powered by **5 state-of-the-art models** via [fal.ai](https://fal.ai/).
+Generate cinematic videos from text prompts or images using Wan, Kling, LTX-2, or PixVerse — all from one interface. Track generation progress in real-time, and play back results directly in the browser.
 
 **Stack:** Spring Boot 3.2 (Java 21) · React + Vite · PostgreSQL · Docker Compose
 
@@ -9,6 +9,7 @@ Generate cinematic videos from text prompts or images, track generation progress
 
 ## Table of Contents
 
+- [Supported Models](#supported-models)
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
 - [fal.ai API Key Setup](#falai-api-key-setup)
@@ -17,6 +18,30 @@ Generate cinematic videos from text prompts or images, track generation progress
 - [Architecture](#architecture)
 - [Development](#development)
 - [Troubleshooting](#troubleshooting)
+
+---
+
+## Supported Models
+
+The application supports the following fal.ai video generation models. The model is selected per-job from a dropdown in the UI, and the form automatically shows only the duration and aspect-ratio values that the selected model accepts.
+
+| Model | Mode | Duration options | Aspect ratios | fal.ai page |
+|---|---|---|---|---|
+| **Wan 2.6** *(default)* | T2V · I2V | 5 s, 10 s, 15 s | 21:9 · 16:9 · 3:2 · 4:3 · 5:4 · 1:1 · 4:5 · 3:4 · 2:3 · 9:16 · 9:21 | [T2V](https://fal.ai/models/fal-ai/wan/v2.6/text-to-video) · [I2V](https://fal.ai/models/fal-ai/wan/v2.6/image-to-video) |
+| **Wan 2.2-A14B** | T2V · I2V | 5 s, 10 s, 15 s | same as Wan 2.6 | [T2V](https://fal.ai/models/fal-ai/wan/v2.2-a14b/text-to-video) · [I2V](https://fal.ai/models/fal-ai/wan/v2.2-a14b/image-to-video) |
+| **Kling v2.5 Turbo Pro** | T2V · I2V | 5 s, 10 s | 16:9 · 9:16 · 1:1 | [T2V](https://fal.ai/models/fal-ai/kling-video/v2.5-turbo/pro/text-to-video) · [I2V](https://fal.ai/models/fal-ai/kling-video/v2.5-turbo/pro/image-to-video) |
+| **LTX-2 19B** | T2V · I2V | 5 s, 10 s, 15 s *(frame-count based)* | 16:9 · 4:3 · 1:1 · 3:4 · 9:16 | [T2V](https://fal.ai/models/fal-ai/ltx-2-19b/text-to-video) · [I2V](https://fal.ai/models/fal-ai/ltx-2-19b/image-to-video) |
+| **PixVerse v5** | T2V · I2V | 5 s, 8 s | 16:9 · 4:3 · 1:1 · 3:4 · 9:16 | [T2V](https://fal.ai/models/fal-ai/pixverse/v5/text-to-video) · [I2V](https://fal.ai/models/fal-ai/pixverse/v5/image-to-video) |
+
+### Model notes
+
+- **Wan 2.6** — Versatile open-source video model. Great default for cinematic text prompts and image animation.
+- **Wan 2.2-A14B** — Higher-parameter Wan variant. Produces sharper motion and finer detail at the cost of slightly longer generation times.
+- **Kling v2.5 Turbo Pro** — Kuaishou's flagship generator. Exceptional motion fluidity and photorealism. Duration is strictly `5` or `10` seconds (fal.ai hard requirement).
+- **LTX-2 19B** — Lightricks' 19-billion-parameter open-source model. Uniquely also generates background audio. Duration is converted to `num_frames` server-side (`fps × seconds`).
+- **PixVerse v5** — Strong stylistic and creative outputs. Supports anime, clay, comic, cyberpunk, and 3D animation styles. Duration is `5` or `8` seconds.
+
+> 💡 Each model has its own pricing on fal.ai. Check each model's page before generating to avoid unexpected credit consumption.
 
 ---
 
@@ -63,7 +88,7 @@ The script will:
 
 ## fal.ai API Key Setup
 
-This application requires a **fal.ai API key** to generate videos via the Wan 2.6 model.
+This application requires a **fal.ai API key** to generate videos. The same key is used for all five supported models.
 
 ### 1. Create a fal.ai account
 
@@ -94,30 +119,34 @@ This application requires a **fal.ai API key** to generate videos via the Wan 2.
 
 fal.ai uses a **prepaid credit** model: credits are drawn down as you make API calls. No credit card is charged per-request; you buy a credit bundle up-front.
 
-#### Wan 2.6 pricing (output-based)
+#### Pricing at a glance
 
-| Resolution | Cost per second of video |
-|-----------|--------------------------|
-| 480p       | **$0.05 / sec**          |
-| 720p       | **$0.10 / sec**          |
-| 1080p      | **$0.15 / sec**          |
+Pricing varies by model. Always verify on the model's fal.ai page before generating at scale.
 
-*A typical 5-second 720p video costs ~$0.50.*
+| Model | Indicative cost |
+|---|---|
+| **Wan 2.6** | ~$0.10 / sec at 720p ($0.05 at 480p, $0.15 at 1080p) |
+| **Wan 2.2-A14B** | see [fal.ai page](https://fal.ai/models/fal-ai/wan/v2.2-a14b/text-to-video) |
+| **Kling v2.5 Turbo Pro** | see [fal.ai page](https://fal.ai/models/fal-ai/kling-video/v2.5-turbo/pro/text-to-video) |
+| **LTX-2 19B** | see [fal.ai page](https://fal.ai/models/fal-ai/ltx-2-19b/text-to-video) |
+| **PixVerse v5** | see [fal.ai page](https://fal.ai/models/fal-ai/pixverse/v5/text-to-video) |
+
+*A typical 5-second Wan 2.6 video at 720p costs ~$0.50.*
 
 #### How much credit to buy
 
 | Use case | Recommended starting credit |
 |----------|-----------------------------|
-| Personal testing / learning | **$5 – $10** (≈ 10–20 videos at 720p) |
-| Regular personal use         | **$20 – $50** |
-| Team / production workloads  | **$100+** (or contact [support@fal.ai](mailto:support@fal.ai) for enterprise pricing) |
+| Personal testing / learning | **$5 – $10** |
+| Regular personal use | **$20 – $50** |
+| Team / production workloads | **$100+** (or contact [support@fal.ai](mailto:support@fal.ai) for enterprise pricing) |
 
 **To add credits:**
 1. Go to **[fal.ai/dashboard](https://fal.ai/dashboard)**.
 2. Click **"Billing"** → **"Add credits"**.
 3. Choose a credit amount and complete the payment.
 
-> 💡 **Note:** Purchased credits expire **365 days** from the date of purchase. Free/coupon credits may have shorter expiry windows (1 week – 1 year). fal.ai only charges for **successful outputs** — HTTP 5xx server errors are never billed.
+> 💡 **Note:** Purchased credits expire **365 days** from the date of purchase. fal.ai only charges for **successful outputs** — HTTP 5xx server errors are never billed.
 
 ---
 
@@ -141,18 +170,21 @@ All configuration lives in `.env` at the repository root.
 ### Text to Video
 
 1. Click the **"📝 Text to Video"** tab.
-2. Enter a detailed prompt describing the scene you want.
-3. Choose an aspect ratio, resolution, and duration.
-4. Click **"🎬 Generate Video"**.
+2. **Select a model** from the dropdown (defaults to Wan 2.6). The ↗ fal.ai link next to the dropdown opens the model's documentation page.
+3. Enter a detailed prompt describing the scene you want.
+4. Choose an aspect ratio, resolution, and duration. *(The available options update automatically based on the selected model.)*
+5. Click **"🎬 Generate Video"**.
 
 The job appears in the gallery below with a **Processing** badge. Generation typically takes 2–5 minutes. The page polls for updates automatically.
 
 ### Image to Video
 
 1. Click the **"🖼️ Image to Video"** tab.
-2. Provide a source image via URL or drag-and-drop upload.
-3. Describe the motion you want (e.g. *"camera slowly zooms out, leaves sway gently"*).
-4. Click **"🎞️ Animate Image"**.
+2. **Select a model** from the dropdown.
+3. Provide a source image via URL or drag-and-drop upload.
+4. Describe the motion you want (e.g. *"camera slowly zooms out, leaves sway gently"*).
+5. Choose a duration. *(Available values are model-specific.)*
+6. Click **"🎞️ Animate Image"**.
 
 ### Supported Aspect Ratios
 
