@@ -2,19 +2,46 @@ import React, { useState, useRef } from 'react';
 import { createImageToVideoJob } from '../services/api';
 
 const MODELS = [
-  { id: 'wan-2.6', label: 'Wan 2.6', url: 'https://fal.ai/models/fal-ai/wan/v2.6/image-to-video' },
-  { id: 'wan-2.2-a14b', label: 'Wan 2.2-A14B', url: 'https://fal.ai/models/fal-ai/wan/v2.2-a14b/image-to-video' },
-  { id: 'kling-v2.5-turbo', label: 'Kling v2.5 Turbo Pro', url: 'https://fal.ai/models/fal-ai/kling-video/v2.5-turbo/pro/image-to-video' },
-  { id: 'ltx-2-19b', label: 'LTX-2 19B', url: 'https://fal.ai/models/fal-ai/ltx-2-19b/image-to-video' },
-  { id: 'pixverse-v5', label: 'PixVerse v5', url: 'https://fal.ai/models/fal-ai/pixverse/v5/image-to-video' },
+  {
+    id: 'wan-2.6',
+    label: 'Wan 2.6',
+    url: 'https://fal.ai/models/fal-ai/wan/v2.6/image-to-video',
+    durations: [5, 10, 15],
+    aspectRatios: ['21:9', '16:9', '3:2', '4:3', '5:4', '1:1', '4:5', '3:4', '2:3', '9:16', '9:21'],
+  },
+  {
+    id: 'wan-2.2-a14b',
+    label: 'Wan 2.2-A14B',
+    url: 'https://fal.ai/models/fal-ai/wan/v2.2-a14b/image-to-video',
+    durations: [5, 10, 15],
+    aspectRatios: ['21:9', '16:9', '3:2', '4:3', '5:4', '1:1', '4:5', '3:4', '2:3', '9:16', '9:21'],
+  },
+  {
+    id: 'kling-v2.5-turbo',
+    label: 'Kling v2.5 Turbo Pro',
+    url: 'https://fal.ai/models/fal-ai/kling-video/v2.5-turbo/pro/image-to-video',
+    durations: [5, 10],
+    aspectRatios: ['16:9', '9:16', '1:1'],
+  },
+  {
+    id: 'ltx-2-19b',
+    label: 'LTX-2 19B',
+    url: 'https://fal.ai/models/fal-ai/ltx-2-19b/image-to-video',
+    durations: [5, 10, 15],
+    aspectRatios: ['16:9', '4:3', '1:1', '3:4', '9:16'],
+  },
+  {
+    id: 'pixverse-v5',
+    label: 'PixVerse v5',
+    url: 'https://fal.ai/models/fal-ai/pixverse/v5/image-to-video',
+    durations: [5, 8],
+    aspectRatios: ['16:9', '4:3', '1:1', '3:4', '9:16'],
+  },
 ];
 
-const RESOLUTIONS = ['1080p', '720p'];
-const DURATIONS = [5, 10, 15];
-
 export default function ImageToVideoForm({ onJobCreated }) {
+  const [selectedModelId, setSelectedModelId] = useState('wan-2.6');
   const [form, setForm] = useState({
-    model: 'wan-2.6',
     prompt: '',
     imageUrl: '',
     negativePrompt: '',
@@ -24,23 +51,32 @@ export default function ImageToVideoForm({ onJobCreated }) {
     multiShots: false,
   });
   const [imagePreview, setImagePreview] = useState(null);
-  const [uploadMode, setUploadMode] = useState('url'); // 'url' | 'file'
+  const [uploadMode, setUploadMode] = useState('url');
   const [dragOver, setDragOver] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const fileRef = useRef(null);
 
-  const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
+  const model = MODELS.find((m) => m.id === selectedModelId) || MODELS[0];
 
-  const selectedModel = MODELS.find((m) => m.id === form.model) || MODELS[0];
+  const handleModelChange = (newId) => {
+    const next = MODELS.find((m) => m.id === newId) || MODELS[0];
+    setSelectedModelId(newId);
+    setForm((f) => ({
+      ...f,
+      duration: next.durations.includes(Number(f.duration)) ? f.duration : next.durations[0],
+    }));
+  };
+
+  const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
 
   const handleFileChange = (file) => {
     if (!file || !file.type.startsWith('image/')) return;
     const reader = new FileReader();
     reader.onload = (e) => {
       setImagePreview(e.target.result);
-      set('imageUrl', e.target.result); // base64 data URI for fal.ai
+      set('imageUrl', e.target.result);
     };
     reader.readAsDataURL(file);
   };
@@ -54,6 +90,7 @@ export default function ImageToVideoForm({ onJobCreated }) {
     try {
       const job = await createImageToVideoJob({
         ...form,
+        model: model.id,
         duration: Number(form.duration),
       });
       setSuccess(true);
@@ -80,12 +117,12 @@ export default function ImageToVideoForm({ onJobCreated }) {
       <div className="form-group">
         <label htmlFor="i2v-model">
           Model&nbsp;
-          <a href={selectedModel.url} target="_blank" rel="noopener noreferrer"
+          <a href={model.url} target="_blank" rel="noopener noreferrer"
             style={{ fontSize: '0.75rem', color: 'var(--accent-1)', textDecoration: 'none' }}>
             ↗ fal.ai
           </a>
         </label>
-        <select id="i2v-model" value={form.model} onChange={(e) => set('model', e.target.value)}>
+        <select id="i2v-model" value={selectedModelId} onChange={(e) => handleModelChange(e.target.value)}>
           {MODELS.map((m) => (
             <option key={m.id} value={m.id}>{m.label}</option>
           ))}
@@ -154,7 +191,7 @@ export default function ImageToVideoForm({ onJobCreated }) {
         <label htmlFor="i2v-prompt" className="required">Motion Prompt</label>
         <textarea id="i2v-prompt" value={form.prompt}
           onChange={(e) => set('prompt', e.target.value)}
-          placeholder="Describe how you want the image to animate... (e.g., 'gentle breeze, leaves swaying, camera slowly zooming out')"
+          placeholder="Describe how you want the image to animate..."
           required maxLength={3000} />
         <div className="form-hint">{form.prompt.length}/3000 characters</div>
       </div>
@@ -171,13 +208,14 @@ export default function ImageToVideoForm({ onJobCreated }) {
         <div className="form-group">
           <label htmlFor="i2v-res">Resolution</label>
           <select id="i2v-res" value={form.resolution} onChange={(e) => set('resolution', e.target.value)}>
-            {RESOLUTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
+            <option value="1080p">1080p</option>
+            <option value="720p">720p</option>
           </select>
         </div>
         <div className="form-group">
           <label htmlFor="i2v-dur">Duration</label>
           <select id="i2v-dur" value={form.duration} onChange={(e) => set('duration', e.target.value)}>
-            {DURATIONS.map((d) => <option key={d} value={d}>{d} seconds</option>)}
+            {model.durations.map((d) => <option key={d} value={d}>{d} seconds</option>)}
           </select>
         </div>
       </div>
