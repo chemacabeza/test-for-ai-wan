@@ -3,17 +3,25 @@ import ReactDOM from 'react-dom';
 import VideoModal from './VideoModal';
 
 const STATUS_LABELS = {
-  PENDING:     'Pending',
-  IN_QUEUE:    'In Queue',
+  PENDING: 'Pending',
+  IN_QUEUE: 'In Queue',
   IN_PROGRESS: 'Generating',
-  COMPLETED:   'Completed',
-  FAILED:      'Failed',
-  CANCELLED:   'Cancelled',
+  COMPLETED: 'Completed',
+  FAILED: 'Failed',
+  CANCELLED: 'Cancelled',
 };
 
 const MODE_ICONS = {
-  TEXT_TO_VIDEO:  '📝',
+  TEXT_TO_VIDEO: '📝',
   IMAGE_TO_VIDEO: '🖼️',
+};
+
+const MODEL_LABELS = {
+  'wan-2.6': 'Wan 2.6',
+  'wan-2.2-a14b': 'Wan 2.2-A14B',
+  'kling-v2.5-turbo': 'Kling v2.5 Turbo',
+  'ltx-2-19b': 'LTX-2 19B',
+  'pixverse-v5': 'PixVerse v5',
 };
 
 function formatBytes(bytes) {
@@ -32,10 +40,10 @@ function formatDate(iso) {
   const diffMs = Date.now() - d.getTime();
   const diffMin = Math.floor(diffMs / 60000);
   let rel;
-  if (diffMin < 1)        rel = 'just now';
-  else if (diffMin < 60)  rel = `${diffMin}m ago`;
+  if (diffMin < 1) rel = 'just now';
+  else if (diffMin < 60) rel = `${diffMin}m ago`;
   else if (diffMin < 1440) rel = `${Math.floor(diffMin / 60)}h ago`;
-  else                    rel = `${Math.floor(diffMin / 1440)}d ago`;
+  else rel = `${Math.floor(diffMin / 1440)}d ago`;
   return { abs, rel };
 }
 
@@ -90,7 +98,7 @@ export default function JobCard({ job, onCancel, onDelete }) {
               const { abs, rel } = formatDate(job.createdAt);
               return (
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}
-                     title={abs}>
+                  title={abs}>
                   🕐 {abs} <span style={{ opacity: 0.65 }}>({rel})</span>
                 </div>
               );
@@ -115,11 +123,12 @@ export default function JobCard({ job, onCancel, onDelete }) {
 
         {/* Meta */}
         <div className="job-card-meta">
-          {job.resolution   && <span>📐 {job.resolution}</span>}
-          {job.duration     && <span>⏱ {job.duration}s</span>}
-          {job.aspectRatio  && <span>⬜ {job.aspectRatio}</span>}
-          {job.videoWidth   && <span>🎞 {job.videoWidth}×{job.videoHeight}</span>}
-          {job.videoFps     && <span>⚡ {job.videoFps?.toFixed(0)} fps</span>}
+          {job.model && <span>🤖 {MODEL_LABELS[job.model] || job.model}</span>}
+          {job.resolution && <span>📐 {job.resolution}</span>}
+          {job.duration && <span>⏱ {job.duration}s</span>}
+          {job.aspectRatio && <span>⬜ {job.aspectRatio}</span>}
+          {job.videoWidth && <span>🎞 {job.videoWidth}×{job.videoHeight}</span>}
+          {job.videoFps && <span>⚡ {job.videoFps?.toFixed(0)} fps</span>}
           {job.videoFileSize && <span>💾 {formatBytes(job.videoFileSize)}</span>}
         </div>
 

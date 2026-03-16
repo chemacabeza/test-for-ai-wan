@@ -23,7 +23,8 @@ public class TextToVideoRequest {
     @Pattern(regexp = "720p|1080p", message = "Resolution must be 720p or 1080p")
     private String resolution = "1080p";
 
-    @Min(value = 5) @Max(value = 15)
+    @Min(value = 5)
+    @Max(value = 15)
     private Integer duration = 5;
 
     private Boolean enablePromptExpansion = true;
@@ -31,4 +32,7 @@ public class TextToVideoRequest {
     private Boolean multiShots = true;
 
     private Long seed;
+
+    @Pattern(regexp = "wan-2\\.6|wan-2\\.2-a14b|kling-v2\\.5-turbo|ltx-2-19b|pixverse-v5", message = "Invalid model ID")
+    private String model = "wan-2.6";
 }

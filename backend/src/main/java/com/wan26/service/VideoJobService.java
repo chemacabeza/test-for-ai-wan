@@ -40,10 +40,11 @@ public class VideoJobService {
         payload.put("enable_prompt_expansion", req.getEnablePromptExpansion());
         payload.put("multi_shots", req.getMultiShots());
         payload.put("enable_safety_checker", true);
-        if (req.getSeed() != null) payload.put("seed", req.getSeed());
+        if (req.getSeed() != null)
+            payload.put("seed", req.getSeed());
 
         // Submit to fal.ai
-        FalAiService.FalQueueResponse queueResponse = falAiService.submitTextToVideo(payload);
+        FalAiService.FalQueueResponse queueResponse = falAiService.submitTextToVideo(payload, req.getModel());
 
         // Persist job
         VideoJob job = VideoJob.builder()
@@ -56,6 +57,7 @@ public class VideoJobService {
                 .enablePromptExpansion(req.getEnablePromptExpansion())
                 .multiShots(req.getMultiShots())
                 .seed(req.getSeed())
+                .model(req.getModel() != null ? req.getModel() : "wan-2.6")
                 .status(queueResponse != null ? JobStatus.IN_QUEUE : JobStatus.FAILED)
                 .falRequestId(queueResponse != null ? queueResponse.getRequestId() : null)
                 .falStatusUrl(queueResponse != null ? queueResponse.getStatusUrl() : null)
@@ -82,9 +84,10 @@ public class VideoJobService {
         payload.put("enable_prompt_expansion", req.getEnablePromptExpansion());
         payload.put("multi_shots", req.getMultiShots());
         payload.put("enable_safety_checker", true);
-        if (req.getSeed() != null) payload.put("seed", req.getSeed());
+        if (req.getSeed() != null)
+            payload.put("seed", req.getSeed());
 
-        FalAiService.FalQueueResponse queueResponse = falAiService.submitImageToVideo(payload);
+        FalAiService.FalQueueResponse queueResponse = falAiService.submitImageToVideo(payload, req.getModel());
 
         VideoJob job = VideoJob.builder()
                 .mode(VideoMode.IMAGE_TO_VIDEO)
@@ -96,6 +99,7 @@ public class VideoJobService {
                 .enablePromptExpansion(req.getEnablePromptExpansion())
                 .multiShots(req.getMultiShots())
                 .seed(req.getSeed())
+                .model(req.getModel() != null ? req.getModel() : "wan-2.6")
                 .status(queueResponse != null ? JobStatus.IN_QUEUE : JobStatus.FAILED)
                 .falRequestId(queueResponse != null ? queueResponse.getRequestId() : null)
                 .falStatusUrl(queueResponse != null ? queueResponse.getStatusUrl() : null)
@@ -136,7 +140,7 @@ public class VideoJobService {
 
         if (!List.of(JobStatus.PENDING, JobStatus.IN_QUEUE, JobStatus.IN_PROGRESS).contains(job.getStatus())) {
             throw new IllegalStateException(
-                "Cannot cancel job in status: " + job.getStatus() + ". Only active jobs can be cancelled.");
+                    "Cannot cancel job in status: " + job.getStatus() + ". Only active jobs can be cancelled.");
         }
 
         job.setStatus(JobStatus.CANCELLED);
@@ -156,7 +160,8 @@ public class VideoJobService {
 
         if (!List.of(JobStatus.FAILED, JobStatus.CANCELLED).contains(job.getStatus())) {
             throw new IllegalStateException(
-                "Cannot delete job in status: " + job.getStatus() + ". Only FAILED or CANCELLED jobs can be deleted.");
+                    "Cannot delete job in status: " + job.getStatus()
+                            + ". Only FAILED or CANCELLED jobs can be deleted.");
         }
 
         repository.delete(job);

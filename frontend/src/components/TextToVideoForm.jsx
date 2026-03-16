@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
 import { createTextToVideoJob } from '../services/api';
 
+const MODELS = [
+  { id: 'wan-2.6', label: 'Wan 2.6', url: 'https://fal.ai/models/fal-ai/wan/v2.6/text-to-video' },
+  { id: 'wan-2.2-a14b', label: 'Wan 2.2-A14B', url: 'https://fal.ai/models/fal-ai/wan/v2.2-a14b/text-to-video' },
+  { id: 'kling-v2.5-turbo', label: 'Kling v2.5 Turbo Pro', url: 'https://fal.ai/models/fal-ai/kling-video/v2.5-turbo/pro/text-to-video' },
+  { id: 'ltx-2-19b', label: 'LTX-2 19B', url: 'https://fal.ai/models/fal-ai/ltx-2-19b/text-to-video' },
+  { id: 'pixverse-v5', label: 'PixVerse v5', url: 'https://fal.ai/models/fal-ai/pixverse/v5/text-to-video' },
+];
+
 const ASPECT_RATIOS = ['21:9', '16:9', '3:2', '4:3', '5:4', '1:1', '4:5', '3:4', '2:3', '9:16', '9:21'];
-const RESOLUTIONS   = ['1080p', '720p'];
-const DURATIONS     = [5, 10, 15];
+const RESOLUTIONS = ['1080p', '720p'];
+const DURATIONS = [5, 10, 15];
 
 const SAMPLE_PROMPTS = [
   'A lone astronaut walks across a glowing alien landscape at dusk, with twin moons rising on the horizon. Cinematic, photoreal, 4K.',
@@ -13,6 +21,7 @@ const SAMPLE_PROMPTS = [
 
 export default function TextToVideoForm({ onJobCreated }) {
   const [form, setForm] = useState({
+    model: 'wan-2.6',
     prompt: '',
     negativePrompt: '',
     aspectRatio: '16:9',
@@ -26,6 +35,8 @@ export default function TextToVideoForm({ onJobCreated }) {
   const [success, setSuccess] = useState(false);
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
+
+  const selectedModel = MODELS.find((m) => m.id === form.model) || MODELS[0];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,6 +76,22 @@ export default function TextToVideoForm({ onJobCreated }) {
         </div>
       )}
 
+      {/* Model */}
+      <div className="form-group">
+        <label htmlFor="t2v-model">
+          Model&nbsp;
+          <a href={selectedModel.url} target="_blank" rel="noopener noreferrer"
+            style={{ fontSize: '0.75rem', color: 'var(--accent-1)', textDecoration: 'none' }}>
+            ↗ fal.ai
+          </a>
+        </label>
+        <select id="t2v-model" value={form.model} onChange={(e) => set('model', e.target.value)}>
+          {MODELS.map((m) => (
+            <option key={m.id} value={m.id}>{m.label}</option>
+          ))}
+        </select>
+      </div>
+
       {/* Prompt */}
       <div className="form-group">
         <label htmlFor="t2v-prompt" className="required">Prompt</label>
@@ -79,7 +106,7 @@ export default function TextToVideoForm({ onJobCreated }) {
         <div className="form-hint">{form.prompt.length}/3000 characters.
           Try: <button
             type="button"
-            style={{ background:'none', border:'none', color:'var(--accent-1)', cursor:'pointer', padding:0, fontSize:'0.8rem' }}
+            style={{ background: 'none', border: 'none', color: 'var(--accent-1)', cursor: 'pointer', padding: 0, fontSize: '0.8rem' }}
             onClick={() => set('prompt', SAMPLE_PROMPTS[Math.floor(Math.random() * SAMPLE_PROMPTS.length)])}
           >random example ✨</button>
         </div>

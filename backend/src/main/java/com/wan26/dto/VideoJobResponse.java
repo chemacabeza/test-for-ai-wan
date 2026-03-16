@@ -32,6 +32,7 @@ public class VideoJobResponse {
     private String errorMessage;
     private Long seed;
     private String actualPrompt;
+    private String model;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
@@ -56,6 +57,7 @@ public class VideoJobResponse {
                 .errorMessage(job.getErrorMessage())
                 .seed(job.getSeed())
                 .actualPrompt(job.getActualPrompt())
+                .model(job.getModel())
                 .createdAt(job.getCreatedAt())
                 .updatedAt(job.getUpdatedAt())
                 .build();

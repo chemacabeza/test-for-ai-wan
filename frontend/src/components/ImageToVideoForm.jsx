@@ -1,11 +1,20 @@
 import React, { useState, useRef } from 'react';
 import { createImageToVideoJob } from '../services/api';
 
+const MODELS = [
+  { id: 'wan-2.6', label: 'Wan 2.6', url: 'https://fal.ai/models/fal-ai/wan/v2.6/image-to-video' },
+  { id: 'wan-2.2-a14b', label: 'Wan 2.2-A14B', url: 'https://fal.ai/models/fal-ai/wan/v2.2-a14b/image-to-video' },
+  { id: 'kling-v2.5-turbo', label: 'Kling v2.5 Turbo Pro', url: 'https://fal.ai/models/fal-ai/kling-video/v2.5-turbo/pro/image-to-video' },
+  { id: 'ltx-2-19b', label: 'LTX-2 19B', url: 'https://fal.ai/models/fal-ai/ltx-2-19b/image-to-video' },
+  { id: 'pixverse-v5', label: 'PixVerse v5', url: 'https://fal.ai/models/fal-ai/pixverse/v5/image-to-video' },
+];
+
 const RESOLUTIONS = ['1080p', '720p'];
-const DURATIONS   = [5, 10, 15];
+const DURATIONS = [5, 10, 15];
 
 export default function ImageToVideoForm({ onJobCreated }) {
   const [form, setForm] = useState({
+    model: 'wan-2.6',
     prompt: '',
     imageUrl: '',
     negativePrompt: '',
@@ -16,13 +25,15 @@ export default function ImageToVideoForm({ onJobCreated }) {
   });
   const [imagePreview, setImagePreview] = useState(null);
   const [uploadMode, setUploadMode] = useState('url'); // 'url' | 'file'
-  const [dragOver, setDragOver]   = useState(false);
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState(null);
-  const [success, setSuccess]     = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
   const fileRef = useRef(null);
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
+
+  const selectedModel = MODELS.find((m) => m.id === form.model) || MODELS[0];
 
   const handleFileChange = (file) => {
     if (!file || !file.type.startsWith('image/')) return;
@@ -64,6 +75,22 @@ export default function ImageToVideoForm({ onJobCreated }) {
     <form onSubmit={handleSubmit}>
       {error && <div className="alert alert-error">⚠️ {typeof error === 'object' ? JSON.stringify(error) : error}</div>}
       {success && <div className="alert alert-success">✅ Job submitted! It will appear in the gallery below shortly.</div>}
+
+      {/* Model */}
+      <div className="form-group">
+        <label htmlFor="i2v-model">
+          Model&nbsp;
+          <a href={selectedModel.url} target="_blank" rel="noopener noreferrer"
+            style={{ fontSize: '0.75rem', color: 'var(--accent-1)', textDecoration: 'none' }}>
+            ↗ fal.ai
+          </a>
+        </label>
+        <select id="i2v-model" value={form.model} onChange={(e) => set('model', e.target.value)}>
+          {MODELS.map((m) => (
+            <option key={m.id} value={m.id}>{m.label}</option>
+          ))}
+        </select>
+      </div>
 
       {/* Image Input Mode Toggle */}
       <div className="form-group">
@@ -108,7 +135,7 @@ export default function ImageToVideoForm({ onJobCreated }) {
               <>
                 <span className="file-upload-icon">🖼️</span>
                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                  Drag & drop or click to select an image
+                  Drag &amp; drop or click to select an image
                 </div>
                 <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '6px' }}>
                   JPEG, PNG, WEBP — up to 100MB

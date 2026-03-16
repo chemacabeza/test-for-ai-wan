@@ -91,6 +91,10 @@ public class VideoJob {
 
     private Long seed;
 
+    @Column(name = "model")
+    @Builder.Default
+    private String model = "wan-2.6";
+
     @Column(name = "actual_prompt", columnDefinition = "TEXT")
     private String actualPrompt;
 
