@@ -1,3 +1,6 @@
+### Secrets ###
+api-key-fal-ai.txt
+
 ### Environment ###
 .env
 *.env.local

@@ -11,6 +11,7 @@ Generate cinematic videos from text prompts or images, track generation progress
 
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
+- [fal.ai API Key Setup](#falai-api-key-setup)
 - [Configuration](#configuration)
 - [Usage](#usage)
 - [Architecture](#architecture)
@@ -57,6 +58,66 @@ The script will:
 # Stop everything
 ./run.sh stop
 ```
+
+---
+
+## fal.ai API Key Setup
+
+This application requires a **fal.ai API key** to generate videos via the Wan 2.6 model.
+
+### 1. Create a fal.ai account
+
+1. Go to **[fal.ai](https://fal.ai/)** and click **"Get started"** (top-right corner).
+2. Sign up using one of the supported methods:
+   - **GitHub OAuth**
+   - **Google OAuth**
+   - **SSO / SAML** (for enterprise teams)
+3. Once signed up, a personal account is automatically created — no extra setup needed.
+
+> **Team accounts:** If you want to share a single API key with colleagues, create a **Team account** from the dashboard. Team accounts share one set of API keys, deployments, and billing.
+
+### 2. Generate an API key
+
+1. Log in to the **[fal.ai dashboard](https://fal.ai/dashboard)**.
+2. Navigate to **Settings → API Keys** (or go directly to [fal.ai/dashboard/keys](https://fal.ai/dashboard/keys)).
+3. Click **"Create new key"**, give it a descriptive name (e.g. `wan-studio-local`), and confirm.
+4. **Copy the key immediately** — it will not be shown again.
+5. Paste it into your `.env` file:
+
+   ```env
+   FAL_API_KEY=your_key_here
+   ```
+
+> ⚠️ **Keep your API key secret.** Never commit it to version control. The `.gitignore` already excludes `.env` and `api-key-fal-ai.txt`.
+
+### 3. Add credits to your account
+
+fal.ai uses a **prepaid credit** model: credits are drawn down as you make API calls. No credit card is charged per-request; you buy a credit bundle up-front.
+
+#### Wan 2.6 pricing (output-based)
+
+| Resolution | Cost per second of video |
+|-----------|--------------------------|
+| 480p       | **$0.05 / sec**          |
+| 720p       | **$0.10 / sec**          |
+| 1080p      | **$0.15 / sec**          |
+
+*A typical 5-second 720p video costs ~$0.50.*
+
+#### How much credit to buy
+
+| Use case | Recommended starting credit |
+|----------|-----------------------------|
+| Personal testing / learning | **$5 – $10** (≈ 10–20 videos at 720p) |
+| Regular personal use         | **$20 – $50** |
+| Team / production workloads  | **$100+** (or contact [support@fal.ai](mailto:support@fal.ai) for enterprise pricing) |
+
+**To add credits:**
+1. Go to **[fal.ai/dashboard](https://fal.ai/dashboard)**.
+2. Click **"Billing"** → **"Add credits"**.
+3. Choose a credit amount and complete the payment.
+
+> 💡 **Note:** Purchased credits expire **365 days** from the date of purchase. Free/coupon credits may have shorter expiry windows (1 week – 1 year). fal.ai only charges for **successful outputs** — HTTP 5xx server errors are never billed.
 
 ---
 
