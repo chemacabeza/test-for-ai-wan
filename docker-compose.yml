@@ -1,4 +1,3 @@
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -10,13 +9,12 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    # Expose on host so the backend (host-networked) can reach it
     ports:
       - "5432:5432"
     networks:
       - wan-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-wan_user} -d ${POSTGRES_DB:-wan_videos}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-wan_user} -d ${POSTGRES_DB:-wan_videos}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,16 +23,14 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-      network: host
     container_name: wan-backend
     restart: unless-stopped
-    # host networking: shares the host network stack so outbound HTTPS to
-    # fal.ai works. Reaches postgres via 127.0.0.1:5432 (exposed above).
-    network_mode: host
+    networks:
+      - wan-network
     env_file:
       - .env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://127.0.0.1:5432/${POSTGRES_DB:-wan_videos}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-wan_videos}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-wan_user}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-secret}
       FAL_API_KEY: ${FAL_API_KEY}
@@ -43,7 +39,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/actuator/health | grep -q UP || exit 1"]
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/api/actuator/health | grep -q UP || exit 1" ]
       interval: 15s
       timeout: 10s
       retries: 5
@@ -57,10 +53,6 @@ services:
     restart: unless-stopped
     ports:
       - "3000:80"
-    # host.docker.internal lets nginx proxy to the host-networked backend.
-    # On macOS Docker Desktop this is automatic; on Linux we set it explicitly.
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     depends_on:
       backend:
         condition: service_healthy
