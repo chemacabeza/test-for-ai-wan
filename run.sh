@@ -70,7 +70,7 @@ open_browser() {
 
 wait_for_app() {
     local url="$1"
-    local retries=40   # 40 × 3s = up to 2 minutes
+    local retries=60   # 60 × 3s = up to 3 minutes
     local count=0
 
     info "Waiting for the application to be ready..."
