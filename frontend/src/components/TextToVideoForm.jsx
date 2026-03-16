@@ -154,14 +154,15 @@ export default function TextToVideoForm({ onJobCreated }) {
       {/* Negative Prompt */}
       <div className="form-group">
         <label htmlFor="t2v-neg">Negative Prompt</label>
-        <input
+        <textarea
           id="t2v-neg"
-          type="text"
           value={form.negativePrompt}
           onChange={(e) => set('negativePrompt', e.target.value)}
           placeholder="low quality, blurry, artifacts..."
-          maxLength={500}
+          maxLength={3000}
+          rows={3}
         />
+        <div className="form-hint">{form.negativePrompt.length}/3000 characters</div>
       </div>
 
       <div className="form-row">

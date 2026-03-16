@@ -199,9 +199,10 @@ export default function ImageToVideoForm({ onJobCreated }) {
       {/* Negative Prompt */}
       <div className="form-group">
         <label htmlFor="i2v-neg">Negative Prompt</label>
-        <input id="i2v-neg" type="text" value={form.negativePrompt}
+        <textarea id="i2v-neg" value={form.negativePrompt}
           onChange={(e) => set('negativePrompt', e.target.value)}
-          placeholder="blurry, glitch, distortion..." maxLength={500} />
+          placeholder="blurry, glitch, distortion..." maxLength={3000} rows={3} />
+        <div className="form-hint">{form.negativePrompt.length}/3000 characters</div>
       </div>
 
       <div className="form-row">

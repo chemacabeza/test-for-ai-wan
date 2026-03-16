@@ -14,7 +14,7 @@ public class TextToVideoRequest {
     @Size(max = 3000, message = "Prompt must be at most 3000 characters")
     private String prompt;
 
-    @Size(max = 500, message = "Negative prompt must be at most 500 characters")
+    @Size(max = 3000, message = "Negative prompt must be at most 3000 characters")
     private String negativePrompt = "";
 
     @Pattern(regexp = "21:9|16:9|3:2|4:3|5:4|1:1|4:5|3:4|2:3|9:16|9:21", message = "Invalid aspect ratio")

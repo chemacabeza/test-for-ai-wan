@@ -17,7 +17,7 @@ public class ImageToVideoRequest {
     @NotBlank(message = "Image URL is required")
     private String imageUrl;
 
-    @Size(max = 500, message = "Negative prompt must be at most 500 characters")
+    @Size(max = 3000, message = "Negative prompt must be at most 3000 characters")
     private String negativePrompt = "";
 
     @Pattern(regexp = "720p|1080p", message = "Resolution must be 720p or 1080p")
