@@ -15,20 +15,22 @@ import java.util.Map;
 @Slf4j
 public class FalAiService {
 
-    // Model-id → fal.ai queue path
+    // Model-id → fal.ai queue path (verified with curl against
+    // https://queue.fal.run)
+    // Wan 2.6 resolves without the fal-ai/ prefix; all others require it.
     private static final java.util.Map<String, String> T2V_ENDPOINTS = java.util.Map.of(
             "wan-2.6", "/wan/v2.6/text-to-video",
-            "wan-2.2-a14b", "/wan/v2.2-a14b/text-to-video",
-            "kling-v2.5-turbo", "/kling-video/v2.5-turbo/pro/text-to-video",
-            "ltx-2-19b", "/ltx-2-19b/text-to-video",
-            "pixverse-v5", "/pixverse/v5/text-to-video");
+            "wan-2.2-a14b", "/fal-ai/wan/v2.2-a14b/text-to-video",
+            "kling-v2.5-turbo", "/fal-ai/kling-video/v2.5-turbo/pro/text-to-video",
+            "ltx-2-19b", "/fal-ai/ltx-2-19b/text-to-video",
+            "pixverse-v5", "/fal-ai/pixverse/v5/text-to-video");
 
     private static final java.util.Map<String, String> I2V_ENDPOINTS = java.util.Map.of(
             "wan-2.6", "/wan/v2.6/image-to-video",
-            "wan-2.2-a14b", "/wan/v2.2-a14b/image-to-video",
-            "kling-v2.5-turbo", "/kling-video/v2.5-turbo/pro/image-to-video",
-            "ltx-2-19b", "/ltx-2-19b/image-to-video",
-            "pixverse-v5", "/pixverse/v5/image-to-video");
+            "wan-2.2-a14b", "/fal-ai/wan/v2.2-a14b/image-to-video",
+            "kling-v2.5-turbo", "/fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
+            "ltx-2-19b", "/fal-ai/ltx-2-19b/image-to-video",
+            "pixverse-v5", "/fal-ai/pixverse/v5/image-to-video");
 
     private final WebClient falWebClient;
 
