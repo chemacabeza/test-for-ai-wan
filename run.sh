@@ -108,7 +108,7 @@ cmd_start() {
     echo ""
     # Wait until backend is healthy, then open the browser
     local app_url="http://localhost:3000"
-    local health_url="http://localhost:8080/api/actuator/health"
+    local health_url="http://localhost:3000"
 
     if wait_for_app "$health_url"; then
         success "Application is ready!"
