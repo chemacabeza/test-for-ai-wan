@@ -8,14 +8,14 @@ const MODELS = [
     label: 'Wan 2.6',
     url: 'https://fal.ai/models/fal-ai/wan/v2.6/text-to-video',
     durations: [5, 10, 15],
-    aspectRatios: ['21:9', '16:9', '3:2', '4:3', '5:4', '1:1', '4:5', '3:4', '2:3', '9:16', '9:21'],
+    aspectRatios: ['16:9', '4:3', '1:1', '3:4', '9:16'],
   },
   {
     id: 'wan-2.2-a14b',
     label: 'Wan 2.2-A14B',
     url: 'https://fal.ai/models/fal-ai/wan/v2.2-a14b/text-to-video',
     durations: [5, 10, 15],
-    aspectRatios: ['21:9', '16:9', '3:2', '4:3', '5:4', '1:1', '4:5', '3:4', '2:3', '9:16', '9:21'],
+    aspectRatios: ['16:9', '4:3', '1:1', '3:4', '9:16'],
   },
   {
     id: 'kling-v2.5-turbo',
