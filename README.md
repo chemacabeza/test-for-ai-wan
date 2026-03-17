@@ -27,8 +27,8 @@ The application supports the following fal.ai video generation models. The model
 
 | Model | Mode | Duration options | Aspect ratios | fal.ai page |
 |---|---|---|---|---|
-| **Wan 2.6** *(default)* | T2V · I2V | 5 s, 10 s, 15 s | 21:9 · 16:9 · 3:2 · 4:3 · 5:4 · 1:1 · 4:5 · 3:4 · 2:3 · 9:16 · 9:21 | [T2V](https://fal.ai/models/fal-ai/wan/v2.6/text-to-video) · [I2V](https://fal.ai/models/fal-ai/wan/v2.6/image-to-video) |
-| **Wan 2.2-A14B** | T2V · I2V | 5 s, 10 s, 15 s | same as Wan 2.6 | [T2V](https://fal.ai/models/fal-ai/wan/v2.2-a14b/text-to-video) · [I2V](https://fal.ai/models/fal-ai/wan/v2.2-a14b/image-to-video) |
+| **Wan 2.6** *(default)* | T2V · I2V | 5 s, 10 s, 15 s | 16:9 · 4:3 · 1:1 · 3:4 · 9:16 | [T2V](https://fal.ai/models/fal-ai/wan/v2.6/text-to-video) · [I2V](https://fal.ai/models/fal-ai/wan/v2.6/image-to-video) |
+| **Wan 2.2-A14B** | T2V · I2V | 5 s, 10 s, 15 s | 16:9 · 4:3 · 1:1 · 3:4 · 9:16 | [T2V](https://fal.ai/models/fal-ai/wan/v2.2-a14b/text-to-video) · [I2V](https://fal.ai/models/fal-ai/wan/v2.2-a14b/image-to-video) |
 | **Kling v2.5 Turbo Pro** | T2V · I2V | 5 s, 10 s | 16:9 · 9:16 · 1:1 | [T2V](https://fal.ai/models/fal-ai/kling-video/v2.5-turbo/pro/text-to-video) · [I2V](https://fal.ai/models/fal-ai/kling-video/v2.5-turbo/pro/image-to-video) |
 | **LTX-2 19B** | T2V · I2V | 5 s, 10 s, 15 s *(frame-count based)* | 16:9 · 4:3 · 1:1 · 3:4 · 9:16 | [T2V](https://fal.ai/models/fal-ai/ltx-2-19b/text-to-video) · [I2V](https://fal.ai/models/fal-ai/ltx-2-19b/image-to-video) |
 | **PixVerse v5** | T2V · I2V | 5 s, 8 s | 16:9 · 4:3 · 1:1 · 3:4 · 9:16 | [T2V](https://fal.ai/models/fal-ai/pixverse/v5/text-to-video) · [I2V](https://fal.ai/models/fal-ai/pixverse/v5/image-to-video) |
@@ -188,7 +188,15 @@ The job appears in the gallery below with a **Processing** badge. Generation typ
 
 ### Supported Aspect Ratios
 
-`21:9` · `16:9` · `3:2` · `4:3` · `5:4` · `1:1` · `4:5` · `3:4` · `2:3` · `9:16` · `9:21`
+Available options are model-specific and enforced by the fal.ai API:
+
+| Model | Aspect ratios |
+|---|---|
+| Wan 2.6 | `16:9` · `4:3` · `1:1` · `3:4` · `9:16` |
+| Wan 2.2-A14B | `16:9` · `4:3` · `1:1` · `3:4` · `9:16` |
+| Kling v2.5 Turbo Pro | `16:9` · `9:16` · `1:1` |
+| LTX-2 19B | `16:9` · `4:3` · `1:1` · `3:4` · `9:16` |
+| PixVerse v5 | `16:9` · `4:3` · `1:1` · `3:4` · `9:16` |
 
 ---
 
