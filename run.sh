@@ -100,10 +100,8 @@ cmd_start() {
     echo ""
 
     info "Building Docker images (this may take a few minutes on first run)..."
-    docker compose build
-
-    info "Starting all services..."
-    docker compose up -d
+    info "Building images and starting all services..."
+    docker compose up --build -d
 
     echo ""
     # Wait until backend is healthy, then open the browser
