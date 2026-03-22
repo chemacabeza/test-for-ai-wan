@@ -23,6 +23,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      network: host
     container_name: wan-backend
     restart: unless-stopped
     networks:
@@ -49,6 +50,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      network: host
     container_name: wan-frontend
     restart: unless-stopped
     ports:
