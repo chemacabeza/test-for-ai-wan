@@ -9,6 +9,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy natively built React app explicitly bypassing docker networking
 COPY dist /usr/share/nginx/html
 
-EXPOSE 80
+EXPOSE 3000
 
 CMD ["nginx", "-g", "daemon off;"]
