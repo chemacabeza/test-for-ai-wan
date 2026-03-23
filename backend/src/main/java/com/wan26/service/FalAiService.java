@@ -42,6 +42,16 @@ public class FalAiService {
     // Submit Text-to-Video
     // -------------------------------------------------------------------------
     public FalQueueResponse submitTextToVideo(Map<String, Object> payload, String model) {
+        if ("offline-ms-1.7b".equals(model)) {
+            log.info("Submitting T2V request explicitly to OFFLINE ENGINE: http://localhost:8088/wan/v2.6/text-to-video");
+            return falWebClient.post()
+                    .uri(java.net.URI.create("http://localhost:8088/wan/v2.6/text-to-video"))
+                    .bodyValue(payload)
+                    .retrieve()
+                    .bodyToMono(FalQueueResponse.class)
+                    .block();
+        }
+
         String endpoint = T2V_ENDPOINTS.getOrDefault(model, T2V_ENDPOINTS.get("wan-2.6"));
         log.info("Submitting T2V request to fal.ai [{}]: {}", endpoint, payload.get("prompt"));
         return falWebClient.post()

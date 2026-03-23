@@ -38,6 +38,13 @@ const MODELS = [
     durations: [5, 8],
     aspectRatios: ['16:9', '4:3', '1:1', '3:4', '9:16'],
   },
+  {
+    id: 'offline-ms-1.7b',
+    label: 'Offline CPU (damo-ms-1.7b)',
+    url: 'http://localhost:8088',
+    durations: [4],
+    aspectRatios: ['1:1'],
+  },
 ];
 
 const SAMPLE_PROMPTS = [
