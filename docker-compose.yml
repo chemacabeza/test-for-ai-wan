@@ -10,7 +10,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - wan-network
     healthcheck:
@@ -30,12 +30,15 @@ services:
     env_file:
       - .env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${POSTGRES_DB:-wan_videos}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/${POSTGRES_DB:-wan_videos}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-wan_user}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-secret}
       FAL_API_KEY: ${FAL_API_KEY}
       SPRING_PROFILES_ACTIVE: docker
+      FAL_API_BASE_URL: http://localhost:8088
     depends_on:
+      wan-offline:
+        condition: service_healthy
       postgres:
         condition: service_healthy
     healthcheck:
@@ -44,6 +47,21 @@ services:
       timeout: 10s
       retries: 5
       start_period: 20s
+
+  wan-offline:
+    build:
+      context: ./backend-wan
+      dockerfile: Dockerfile
+      network: host
+    container_name: wan-offline
+    restart: unless-stopped
+    network_mode: "host"
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8088"]
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8088/health | grep -q offline_engine_running || exit 1" ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
 
   frontend:
     build:

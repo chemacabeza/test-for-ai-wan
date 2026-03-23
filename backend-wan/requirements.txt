@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+torch
+diffusers>=0.21.0
+transformers
+accelerate
+imageio
+imageio-ffmpeg
