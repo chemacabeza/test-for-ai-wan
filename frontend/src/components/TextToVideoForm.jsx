@@ -54,6 +54,7 @@ const SAMPLE_PROMPTS = [
 ];
 
 export default function TextToVideoForm({ onJobCreated }) {
+  const [isOffline, setIsOffline] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState('wan-2.6');
   const [form, setForm] = useState({
     prompt: '',
@@ -68,10 +69,23 @@ export default function TextToVideoForm({ onJobCreated }) {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  const model = MODELS.find((m) => m.id === selectedModelId) || MODELS[0];
+  const availableModels = MODELS.filter(m => isOffline ? m.id === 'offline-ms-1.7b' : m.id !== 'offline-ms-1.7b');
+  const model = availableModels.find((m) => m.id === selectedModelId) || availableModels[0];
+
+  React.useEffect(() => {
+    if (isOffline) {
+      setSelectedModelId('offline-ms-1.7b');
+      setForm(f => ({ ...f, duration: 4, aspectRatio: '1:1' }));
+    } else {
+      if (selectedModelId === 'offline-ms-1.7b') {
+        setSelectedModelId('wan-2.6');
+        setForm(f => ({ ...f, duration: 5, aspectRatio: '16:9' }));
+      }
+    }
+  }, [isOffline, selectedModelId]);
 
   const handleModelChange = (newId) => {
-    const next = MODELS.find((m) => m.id === newId) || MODELS[0];
+    const next = availableModels.find((m) => m.id === newId) || availableModels[0];
     setSelectedModelId(newId);
     // Clamp duration and aspect ratio to what the new model supports
     setForm((f) => ({
@@ -122,21 +136,48 @@ export default function TextToVideoForm({ onJobCreated }) {
         </div>
       )}
 
-      {/* Model */}
-      <div className="form-group">
-        <label htmlFor="t2v-model">
-          Model&nbsp;
-          <a href={model.url} target="_blank" rel="noopener noreferrer"
-            style={{ fontSize: '0.75rem', color: 'var(--accent-1)', textDecoration: 'none' }}>
-            ↗ fal.ai
-          </a>
-        </label>
-        <select id="t2v-model" value={selectedModelId} onChange={(e) => handleModelChange(e.target.value)}>
-          {MODELS.map((m) => (
-            <option key={m.id} value={m.id}>{m.label}</option>
-          ))}
-        </select>
+      {/* Online/Offline Toggle */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <span style={{ fontSize: '1.05rem', fontWeight: 600, color: isOffline ? '#a5b4fc' : '#e2e8f0', transition: '0.3s' }}>
+            {isOffline ? '🔌 Offline Inference Mode' : '🌐 Cloud API Mode'}
+          </span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+            {isOffline ? 'Runs locally on your CPU (Free, Slower)' : 'Powered by Fal.ai Cloud (Ultra Fast)'}
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setIsOffline(!isOffline)}>
+          <div style={{ position: 'relative', width: '52px', height: '28px', backgroundColor: isOffline ? 'rgba(99,120,255,0.7)' : 'rgba(255,255,255,0.1)', borderRadius: '34px', transition: '0.3s ease' }}>
+            <div style={{ position: 'absolute', top: '4px', left: isOffline ? '28px' : '4px', width: '20px', height: '20px', backgroundColor: 'white', borderRadius: '50%', transition: '0.3s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} />
+          </div>
+        </div>
       </div>
+
+      {/* Model */}
+      {!isOffline && (
+        <div className="form-group">
+          <label htmlFor="t2v-model">
+            Model&nbsp;
+            <a href={model.url} target="_blank" rel="noopener noreferrer"
+              style={{ fontSize: '0.75rem', color: 'var(--accent-1)', textDecoration: 'none' }}>
+              ↗ fal.ai
+            </a>
+          </label>
+          <select id="t2v-model" value={selectedModelId} onChange={(e) => handleModelChange(e.target.value)}>
+            {availableModels.map((m) => (
+              <option key={m.id} value={m.id}>{m.label}</option>
+            ))}
+          </select>
+        </div>
+      )}
+      {isOffline && (
+        <div className="form-group">
+          <label>Selected Model</label>
+          <div style={{ padding: '12px 16px', background: 'rgba(99,120,255,0.1)', border: '1px solid rgba(99,120,255,0.3)', borderRadius: '8px', color: '#a5b4fc', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>🤖</span> {model.label}
+          </div>
+        </div>
+      )}
 
       {/* Prompt */}
       <div className="form-group">
